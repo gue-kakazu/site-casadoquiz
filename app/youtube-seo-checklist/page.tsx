@@ -2,9 +2,19 @@
 
 import { useState } from 'react'
 
+// Definir um tipo para os dados do vídeo
+interface VideoData {
+  title: string
+  description: string
+  channelTitle: string
+  publishedAt: string
+  tags?: string[]
+  duration: string
+}
+
 export default function YouTubeSEOChecklist() {
   const [videoUrl, setVideoUrl] = useState('')
-  const [videoData, setVideoData] = useState<any>(null)
+  const [videoData, setVideoData] = useState<VideoData | null>(null)  // tipo explícito
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -41,7 +51,8 @@ export default function YouTubeSEOChecklist() {
       } else {
         setStatus('⚠️ Nenhum vídeo encontrado com esse ID.')
       }
-    } catch (err) {
+    } catch (error) { // parâmetro usado agora
+      console.error(error)
       setStatus('❌ Erro ao buscar dados. Verifique sua chave da API ou tente novamente.')
     } finally {
       setLoading(false)
