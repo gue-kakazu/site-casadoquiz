@@ -159,7 +159,7 @@ const isCustomThumbnail = Boolean(
                     <th className="border border-gray-300 p-2 text-left">Item</th>
                     <th className="border border-gray-300 p-2 text-center">Importância</th>
                     <th className="border border-gray-300 p-2 text-center">Preenchido</th>
-                    <th className="border border-gray-300 p-2 text-left">Observação</th>
+                    <th className="border border-gray-300 p-2 text-left hidden sm:table-cell">Observação</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -167,19 +167,19 @@ const isCustomThumbnail = Boolean(
                     <td className="border p-2">Título</td>
                     <td className="border p-2 text-center">⭐⭐⭐⭐⭐</td>
                     <td className="border p-2 text-center">{checkField(videoData.title)}</td>
-                    <td className="border p-2">Fundamental para ranqueamento</td>
+                    <td className="border p-2 hidden sm:table-cell">Fundamental para ranqueamento</td>
                   </tr>
                   <tr>
                     <td className="border p-2">Descrição</td>
                     <td className="border p-2 text-center">⭐⭐⭐⭐⭐</td>
                     <td className="border p-2 text-center">{checkField(videoData.description)}</td>
-                    <td className="border p-2">Importante para engajamento</td>
+                    <td className="border p-2 hidden sm:table-cell">Importante para engajamento</td>
                   </tr>
                   <tr>
                     <td className="border p-2">Thumbnail personalizada</td>
                     <td className="border p-2 text-center">⭐⭐⭐</td>
                     <td className="border p-2 text-center">{isCustomThumbnail ? '✅' : '❌'}</td>
-                    <td className="border p-2">
+                    <td className="border p-2 hidden sm:table-cell">
                       {isCustomThumbnail
                         ? 'Boa! Você enviou uma miniatura customizada.'
                         : 'Use uma imagem customizada para atrair mais cliques.'}
@@ -189,13 +189,13 @@ const isCustomThumbnail = Boolean(
                     <td className="border p-2">Tags</td>
                     <td className="border p-2 text-center">⭐⭐⭐</td>
                     <td className="border p-2 text-center">{checkField(videoData.tags)}</td>
-                    <td className="border p-2">Melhora descoberta do vídeo</td>
+                    <td className="border p-2 hidden sm:table-cell">Melhora descoberta do vídeo</td>
                   </tr>
                   <tr>
                     <td className="border p-2">Categoria</td>
                     <td className="border p-2 text-center">⭐⭐</td>
                     <td className="border p-2 text-center">{checkField(videoData.categoryId)}</td>
-                    <td className="border p-2">
+                    <td className="border p-2 hidden sm:table-cell">
                       {categories[videoData.categoryId || ''] || 'Categoria não definida'}
                     </td>
                   </tr>
@@ -203,7 +203,7 @@ const isCustomThumbnail = Boolean(
                     <td className="border p-2">Idioma do vídeo</td>
                     <td className="border p-2 text-center">⭐⭐</td>
                     <td className="border p-2 text-center">{checkField(videoData.defaultAudioLanguage)}</td>
-                    <td className="border p-2">Segmenta público corretamente</td>
+                    <td className="border p-2 hidden sm:table-cell">Segmenta público corretamente</td>
                   </tr>
                 </tbody>
               </table>
