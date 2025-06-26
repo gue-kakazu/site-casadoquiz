@@ -34,9 +34,9 @@ const categories: Record<string, string> = {
 }
 
 export const metadata = {
-  title: 'Checklist SEO para vídeos do YouTube',
-  description: 'Verifique se seu vídeo está otimizado para o YouTube Studio com nosso checklist de SEO.',
+  title: 'Checklist SEO para vídeos do YouTube | Casa do Quiz',
 }
+
 
 
 export default function YouTubeSEOChecklist() {
