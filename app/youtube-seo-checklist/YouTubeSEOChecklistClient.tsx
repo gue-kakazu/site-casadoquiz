@@ -13,7 +13,18 @@ interface VideoData {
   viewCount?: string
   likeCount?: string
   commentCount?: string
+  thumbnails?: {
+    default?: { url: string }
+    medium?: { url: string }
+    high?: { url: string }
+    standard?: { url: string }
+    maxres?: { url: string }
+  }
 }
+
+/* Exibe 171499 → 171.499 (exato, sem arredondar) */
+const formatNumber = (num?: string) =>
+  num ? Number(num).toLocaleString('pt-BR') : 'N/A'
 
 /* ---------- Mapa de ID → nome de categoria ---------- */
 const categories: Record<string, string> = {
@@ -33,19 +44,12 @@ const categories: Record<string, string> = {
   '29': 'ONGs e Ativismo Social',
 }
 
-export const metadata = {
-  title: 'Checklist SEO para vídeos do YouTube | Casa do Quiz',
-}
-
-
-
 export default function YouTubeSEOChecklist() {
   const [videoUrl, setVideoUrl] = useState('')
   const [videoData, setVideoData] = useState<VideoData | null>(null)
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
 
-  /* ---------- Extrai o ID do vídeo em QUALQUER formato ---------- */
   const extractVideoId = (url: string) => {
     const regex =
       /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)(?:\/(?:watch\?v=|embed\/|shorts\/)?)([a-zA-Z0-9_-]{11})/
@@ -53,7 +57,6 @@ export default function YouTubeSEOChecklist() {
     return match ? match[1] : null
   }
 
-  /* ---------- Retorna ✅ ou ❌ ---------- */
   const checkField = (field?: string | string[]) =>
     field && (Array.isArray(field) ? field.length : field.trim().length) > 0 ? '✅' : '❌'
 
@@ -78,7 +81,7 @@ export default function YouTubeSEOChecklist() {
 
       if (data.items && data.items.length > 0) {
         const item = data.items[0]
-        const { title, description, tags, categoryId, defaultAudioLanguage } = item.snippet
+        const { title, description, tags, categoryId, defaultAudioLanguage, thumbnails } = item.snippet
         const { duration } = item.contentDetails
         const { viewCount, likeCount, commentCount } = item.statistics
 
@@ -92,6 +95,7 @@ export default function YouTubeSEOChecklist() {
           viewCount,
           likeCount,
           commentCount,
+          thumbnails,
         })
         setStatus('✅ Dados carregados com sucesso!')
       } else {
@@ -105,22 +109,25 @@ export default function YouTubeSEOChecklist() {
     }
   }
 
+/* ---------- Testa se há miniatura customizada ---------- */
+const isCustomThumbnail = Boolean(
+  videoData?.thumbnails?.maxres || videoData?.thumbnails?.standard
+)
+
+
+
   return (
-    <main className="min-h-screen p-6 bg-white text-black">
+    <main className="min-h-screen p-6 bg-white text-black overflow-x-hidden">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Cabeçalho */}
-        <h1 className="text-3xl font-bold text-center">
-          🎯 Checklist SEO para vídeos do YouTube
-        </h1>
+        <h1 className="text-xl sm:text-3xl font-bold text-center">🎯 Checklist SEO para vídeos do YouTube</h1>
         <p className="text-center text-gray-600">
           Será que você esqueceu de preencher um campo importante? Vamos descobrir!
         </p>
 
-        {/* Painel de análise */}
         <section className="w-full bg-gray-100 p-6 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold mb-4">Analisar vídeo</h2>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={videoUrl}
@@ -131,7 +138,7 @@ export default function YouTubeSEOChecklist() {
             <button
               onClick={fetchVideoData}
               disabled={loading}
-              className="px-6 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+              className="px-6 bg-blue-600 text-white rounded hover:bg-blue-700 transition w-full sm:w-auto"
             >
               {loading ? 'Carregando…' : 'Verificar'}
             </button>
@@ -140,85 +147,81 @@ export default function YouTubeSEOChecklist() {
           {status && <p className="mt-3 text-sm text-gray-700">{status}</p>}
         </section>
 
-        {/* Resultado */}
         {videoData && (
           <>
-            <h2 className="text-xl font-semibold mt-8 mb-2 text-center">
-              📊 Checklist de SEO no YouTube Studio
-            </h2>
-            <p className="text-sm text-gray-600 text-center mb-4">
-              Com notas de importância para SEO (de 1 a 5 ⭐)
-            </p>
+            <h2 className="text-xl font-semibold mt-8 mb-2 text-center">📊 Checklist de SEO no YouTube Studio</h2>
+            <p className="text-sm text-gray-600 text-center mb-4">Com notas de importância para SEO (de 1 a 5 ⭐)</p>
 
-            {/* Tabela de preenchimento */}
-            <table className="w-full border-collapse border border-gray-300 text-sm">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 p-2 text-left">Item</th>
-                  <th className="border border-gray-300 p-2 text-center">Importância</th>
-                  <th className="border border-gray-300 p-2 text-center">Preenchido</th>
-                  <th className="border border-gray-300 p-2 text-left">Observação</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border border-gray-300 p-2">Título</td>
-                  <td className="border border-gray-300 p-2 text-center">⭐⭐⭐⭐⭐</td>
-                  <td className="border border-gray-300 p-2 text-center">
-                    {checkField(videoData.title)}
-                  </td>
-                  <td className="border border-gray-300 p-2">Fundamental para ranqueamento</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 p-2">Descrição</td>
-                  <td className="border border-gray-300 p-2 text-center">⭐⭐⭐⭐⭐</td>
-                  <td className="border border-gray-300 p-2 text-center">
-                    {checkField(videoData.description)}
-                  </td>
-                  <td className="border border-gray-300 p-2">Importante para engajamento</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 p-2">Tags</td>
-                  <td className="border border-gray-300 p-2 text-center">⭐⭐⭐</td>
-                  <td className="border border-gray-300 p-2 text-center">
-                    {checkField(videoData.tags)}
-                  </td>
-                  <td className="border border-gray-300 p-2">Melhora descoberta do vídeo</td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 p-2">Categoria</td>
-                  <td className="border border-gray-300 p-2 text-center">⭐⭐</td>
-                  <td className="border border-gray-300 p-2 text-center">
-                    {checkField(videoData.categoryId)}
-                  </td>
-                  <td className="border border-gray-300 p-2">
-                    {categories[videoData.categoryId || ''] || 'Categoria não definida'}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border border-gray-300 p-2">Idioma do vídeo</td>
-                  <td className="border border-gray-300 p-2 text-center">⭐⭐</td>
-                  <td className="border border-gray-300 p-2 text-center">
-                    {checkField(videoData.defaultAudioLanguage)}
-                  </td>
-                  <td className="border border-gray-300 p-2">Segmenta público corretamente</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="min-w-full border-collapse border border-gray-300 text-sm">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border border-gray-300 p-2 text-left">Item</th>
+                    <th className="border border-gray-300 p-2 text-center">Importância</th>
+                    <th className="border border-gray-300 p-2 text-center">Preenchido</th>
+                    <th className="border border-gray-300 p-2 text-left">Observação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border p-2">Título</td>
+                    <td className="border p-2 text-center">⭐⭐⭐⭐⭐</td>
+                    <td className="border p-2 text-center">{checkField(videoData.title)}</td>
+                    <td className="border p-2">Fundamental para ranqueamento</td>
+                  </tr>
+                  <tr>
+                    <td className="border p-2">Descrição</td>
+                    <td className="border p-2 text-center">⭐⭐⭐⭐⭐</td>
+                    <td className="border p-2 text-center">{checkField(videoData.description)}</td>
+                    <td className="border p-2">Importante para engajamento</td>
+                  </tr>
+                  <tr>
+                    <td className="border p-2">Thumbnail personalizada</td>
+                    <td className="border p-2 text-center">⭐⭐⭐</td>
+                    <td className="border p-2 text-center">{isCustomThumbnail ? '✅' : '❌'}</td>
+                    <td className="border p-2">
+                      {isCustomThumbnail
+                        ? 'Boa! Você enviou uma miniatura customizada.'
+                        : 'Use uma imagem customizada para atrair mais cliques.'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border p-2">Tags</td>
+                    <td className="border p-2 text-center">⭐⭐⭐</td>
+                    <td className="border p-2 text-center">{checkField(videoData.tags)}</td>
+                    <td className="border p-2">Melhora descoberta do vídeo</td>
+                  </tr>
+                  <tr>
+                    <td className="border p-2">Categoria</td>
+                    <td className="border p-2 text-center">⭐⭐</td>
+                    <td className="border p-2 text-center">{checkField(videoData.categoryId)}</td>
+                    <td className="border p-2">
+                      {categories[videoData.categoryId || ''] || 'Categoria não definida'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="border p-2">Idioma do vídeo</td>
+                    <td className="border p-2 text-center">⭐⭐</td>
+                    <td className="border p-2 text-center">{checkField(videoData.defaultAudioLanguage)}</td>
+                    <td className="border p-2">Segmenta público corretamente</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
             {/* Painel de métricas */}
             <section className="mt-8 bg-white border border-gray-300 rounded-lg shadow-sm p-6 space-y-4">
               <h1 className="text-2xl font-bold text-center">{videoData.title}</h1>
 
-              <div className="flex flex-col sm:flex-row sm:justify-center sm:gap-8 text-sm text-gray-700 text-center">
+              <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-700 text-center">
                 <p>
-                  <strong>👁️ Visualizações:</strong> {videoData.viewCount || 'N/A'}
+                  <strong>👁️ Visualizações:</strong> {formatNumber(videoData.viewCount)}
                 </p>
                 <p>
-                  <strong>👍 Likes:</strong> {videoData.likeCount || 'N/A'}
+                  <strong>👍 Likes:</strong> {formatNumber(videoData.likeCount)}
                 </p>
                 <p>
-                  <strong>💬 Comentários:</strong> {videoData.commentCount || 'N/A'}
+                  <strong>💬 Comentários:</strong> {formatNumber(videoData.commentCount)}
                 </p>
                 <p>
                   <strong>📈 Engajamento:</strong>{' '}
@@ -233,10 +236,8 @@ export default function YouTubeSEOChecklist() {
               </div>
 
               <div>
-                <h2 className="text-lg font-semibold mb-2">
-                  📝 Descrição do vídeo
-                </h2>
-                <p className="text-sm text-gray-800 whitespace-pre-line">
+                <h2 className="text-lg font-semibold mb-2">📝 Descrição do vídeo</h2>
+                <p className="text-sm text-gray-800 whitespace-pre-wrap break-words">
                   {videoData.description || 'Sem descrição disponível.'}
                 </p>
               </div>
