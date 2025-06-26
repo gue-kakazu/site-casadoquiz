@@ -33,6 +33,12 @@ const categories: Record<string, string> = {
   '29': 'ONGs e Ativismo Social',
 }
 
+export const metadata = {
+  title: 'Checklist SEO para vídeos do YouTube',
+  description: 'Verifique se seu vídeo está otimizado para o YouTube Studio com nosso checklist de SEO.',
+}
+
+
 export default function YouTubeSEOChecklist() {
   const [videoUrl, setVideoUrl] = useState('')
   const [videoData, setVideoData] = useState<VideoData | null>(null)
