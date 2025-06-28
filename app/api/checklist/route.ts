@@ -51,6 +51,7 @@ export async function GET(request: Request) {
       thumbnails: item.snippet.thumbnails,
     });
   } catch (err) {
+    console.error(err);
     return NextResponse.json(
       { error: 'Erro interno' },
       { status: 500 }

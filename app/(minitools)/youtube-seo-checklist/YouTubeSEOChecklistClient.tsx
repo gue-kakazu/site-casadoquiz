@@ -150,7 +150,9 @@ export default function YouTubeSEOChecklist() {
                     <th className="border border-gray-300 p-2 text-left">Item</th>
                     <th className="border border-gray-300 p-2 text-center">Importância</th>
                     <th className="border border-gray-300 p-2 text-center">Preenchido</th>
-                    <th className="border border-gray-300 p-2 text-left hidden sm:table-cell">Observação</th>
+                    <th className="border border-gray-300 p-2 text-left hidden sm:table-cell">
+                      Observação
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
