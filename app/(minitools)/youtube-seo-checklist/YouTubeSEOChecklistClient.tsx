@@ -1,30 +1,30 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
+import { useState } from 'react';
 
 /* ---------- Tipo dos dados do vídeo ---------- */
 interface VideoData {
-  title: string
-  description: string
-  tags?: string[]
-  categoryId?: string
-  defaultAudioLanguage?: string
-  duration?: string
-  viewCount?: string
-  likeCount?: string
-  commentCount?: string
+  title: string;
+  description: string;
+  tags?: string[];
+  categoryId?: string;
+  defaultAudioLanguage?: string;
+  duration?: string;
+  viewCount?: string;
+  likeCount?: string;
+  commentCount?: string;
   thumbnails?: {
-    default?: { url: string }
-    medium?: { url: string }
-    high?: { url: string }
-    standard?: { url: string }
-    maxres?: { url: string }
-  }
+    default?: { url: string };
+    medium?: { url: string };
+    high?: { url: string };
+    standard?: { url: string };
+    maxres?: { url: string };
+  };
 }
 
-/* Exibe 171499 → 171.499 (exato, sem arredondar) */
+/* Exibe 171499 → 171.499 */
 const formatNumber = (num?: string) =>
-  num ? Number(num).toLocaleString('pt-BR') : 'N/A'
+  num ? Number(num).toLocaleString('pt-BR') : 'N/A';
 
 /* ---------- Mapa de ID → nome de categoria ---------- */
 const categories: Record<string, string> = {
@@ -42,88 +42,74 @@ const categories: Record<string, string> = {
   '27': 'Educação',
   '28': 'Ciência e Tecnologia',
   '29': 'ONGs e Ativismo Social',
-}
+};
 
 export default function YouTubeSEOChecklist() {
-  const [videoUrl, setVideoUrl] = useState('')
-  const [videoData, setVideoData] = useState<VideoData | null>(null)
-  const [status, setStatus] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoData, setVideoData] = useState<VideoData | null>(null);
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const extractVideoId = (url: string) => {
     const regex =
-      /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)(?:\/(?:watch\?v=|embed\/|shorts\/)?)([a-zA-Z0-9_-]{11})/
-    const match = url.match(regex)
-    return match ? match[1] : null
-  }
+      /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)(?:\/(?:watch\?v=|embed\/|shorts\/)?)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
 
   const checkField = (field?: string | string[]) =>
-    field && (Array.isArray(field) ? field.length : field.trim().length) > 0 ? '✅' : '❌'
+    field && (Array.isArray(field) ? field.length : field.trim().length) > 0
+      ? '✅'
+      : '❌';
 
   /* ---------- Busca dados do vídeo ---------- */
   const fetchVideoData = async () => {
-    const videoId = extractVideoId(videoUrl)
+    const videoId = extractVideoId(videoUrl);
     if (!videoId) {
-      setStatus('⚠️ URL inválida. Cole uma URL de vídeo válida.')
-      setVideoData(null)
-      return
+      setStatus('⚠️ URL inválida. Cole uma URL de vídeo válida.');
+      setVideoData(null);
+      return;
     }
 
-    setLoading(true)
-    setStatus('🔍 Buscando informações…')
-    setVideoData(null)
+    setLoading(true);
+    setStatus('🔍 Buscando informações…');
+    setVideoData(null);
 
     try {
-      const res = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${videoId}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`
-      )
-      const data = await res.json()
+      const res = await fetch(`/api/checklist?v=${videoId}`);
+      const data = await res.json();
 
-      if (data.items && data.items.length > 0) {
-        const item = data.items[0]
-        const { title, description, tags, categoryId, defaultAudioLanguage, thumbnails } = item.snippet
-        const { duration } = item.contentDetails
-        const { viewCount, likeCount, commentCount } = item.statistics
-
-        setVideoData({
-          title,
-          description,
-          tags,
-          categoryId,
-          defaultAudioLanguage,
-          duration,
-          viewCount,
-          likeCount,
-          commentCount,
-          thumbnails,
-        })
-        setStatus('✅ Dados carregados com sucesso!')
-      } else {
-        setStatus('⚠️ Nenhum vídeo encontrado com esse ID.')
+      if (data.error) {
+        setStatus(`❌ ${data.error}`);
+        return;
       }
+
+      setVideoData(data as VideoData);
+      setStatus('✅ Dados carregados com sucesso!');
     } catch (error) {
-      console.error(error)
-      setStatus('❌ Erro ao buscar dados. Verifique a chave da API ou tente novamente.')
+      console.error(error);
+      setStatus('❌ Erro ao buscar dados. Tente novamente.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-/* ---------- Testa se há miniatura customizada ---------- */
-const isCustomThumbnail = Boolean(
-  videoData?.thumbnails?.maxres || videoData?.thumbnails?.standard
-)
-
-
+  /* ---------- Testa se há miniatura customizada ---------- */
+  const isCustomThumbnail = Boolean(
+    videoData?.thumbnails?.maxres || videoData?.thumbnails?.standard
+  );
 
   return (
     <main className="min-h-screen p-6 bg-white text-black overflow-x-hidden">
       <div className="max-w-2xl mx-auto space-y-6">
-        <h1 className="text-xl sm:text-3xl font-bold text-center">🎯 Checklist SEO para vídeos do YouTube</h1>
+        <h1 className="text-xl sm:text-3xl font-bold text-center">
+          🎯 Checklist SEO para vídeos do YouTube
+        </h1>
         <p className="text-center text-gray-600">
           Será que você esqueceu de preencher um campo importante? Vamos descobrir!
         </p>
 
+        {/* Formulário */}
         <section className="w-full bg-gray-100 p-6 rounded-lg shadow-md">
           <h2 className="text-lg font-semibold mb-4">Analisar vídeo</h2>
 
@@ -147,10 +133,15 @@ const isCustomThumbnail = Boolean(
           {status && <p className="mt-3 text-sm text-gray-700">{status}</p>}
         </section>
 
+        {/* Tabela e métricas */}
         {videoData && (
           <>
-            <h2 className="text-xl font-semibold mt-8 mb-2 text-center">📊 Checklist de SEO no YouTube Studio</h2>
-            <p className="text-sm text-gray-600 text-center mb-4">Com notas de importância para SEO (de 1 a 5 ⭐)</p>
+            <h2 className="text-xl font-semibold mt-8 mb-2 text-center">
+              📊 Checklist de SEO no YouTube Studio
+            </h2>
+            <p className="text-sm text-gray-600 text-center mb-4">
+              Com notas de importância para SEO (de 1 a 5 ⭐)
+            </p>
 
             <div className="overflow-x-auto">
               <table className="min-w-full border-collapse border border-gray-300 text-sm">
@@ -246,5 +237,5 @@ const isCustomThumbnail = Boolean(
         )}
       </div>
     </main>
-  )
+  );
 }
