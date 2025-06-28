@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';  // Importa o Image do Next.js
 
-/* ---------- Tipo dos dados do canal ---------- */
 interface Stats {
   title: string;
   subscribers: string;
@@ -11,7 +11,6 @@ interface Stats {
   thumbnail?: string;
 }
 
-/* Utilitário: formata números 12345 → 12 345 */
 const fmt = (n: string | number) => Number(n).toLocaleString('pt-BR');
 
 export default function ChannelInsights() {
@@ -27,7 +26,6 @@ export default function ChannelInsights() {
     setStats(null);
 
     try {
-      /* 🔹 Busca tudo no endpoint interno */
       const res = await fetch(`/api/channel?q=${encodeURIComponent(input.trim())}`);
       if (!res.ok) throw new Error('Falha na API interna');
       const data = await res.json();
@@ -40,8 +38,12 @@ export default function ChannelInsights() {
         videos: fmt(data.videos),
         thumbnail: data.thumbnail,
       });
-    } catch (err: any) {
-      setError(err.message ?? 'Erro desconhecido');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Erro desconhecido');
+      }
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,6 @@ export default function ChannelInsights() {
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
-      {/* Input + Botão */}
       <div className="flex items-center gap-2">
         <input
           type="text"
@@ -70,19 +71,22 @@ export default function ChannelInsights() {
         </button>
       </div>
 
-      {/* Erro */}
       {error && <p className="text-red-600">{error}</p>}
 
-      {/* Resultados */}
       {stats && (
         <>
           <h2 className="text-lg font-semibold text-center">{stats.title}</h2>
           {stats.thumbnail && (
-            <img
-              src={stats.thumbnail}
-              alt={`${stats.title} thumbnail`}
-              className="mx-auto rounded w-32 h-32 object-cover"
-            />
+            <div className="mx-auto w-32 h-32 relative">
+              <Image
+                src={stats.thumbnail}
+                alt={`${stats.title} thumbnail`}
+                layout="fill"
+                objectFit="cover"
+                className="rounded"
+                priority
+              />
+            </div>
           )}
           <div className="grid grid-cols-2 gap-4 text-center">
             <Stat label="Inscritos" value={stats.subscribers} />
