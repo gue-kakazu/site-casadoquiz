@@ -5,3 +5,12 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    domains: ['yt3.ggpht.com'], // adiciona o domínio do YouTube
+  },
+};
+
+module.exports = nextConfig;
